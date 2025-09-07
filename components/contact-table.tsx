@@ -10,6 +10,8 @@ const ContactTable = async ({
 }) => {
   const contacts = await getContactIncomes(query, date);
   return (
+    <>
+      <div className="">Total: {contacts.length}</div>
     <table className="w-full m-auto border border-gray-300 shadow-lg rounded-lg overflow-hidden">
       {/* Table Header */}
       <thead className="bg-gradient-to-r bg-pink-400  text-white text-sm uppercase">
@@ -19,7 +21,6 @@ const ContactTable = async ({
           <th className="px-1 py-4 lg:px-6">Created</th>
         </tr>
       </thead>
-
       {/* Table Body */}
       <tbody className="text-gray-700 text-sm bg-white">
         {contacts.map((contact) => (
@@ -38,8 +39,9 @@ const ContactTable = async ({
             </td>
           </tr>
         ))}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </>
   );
 };
 
