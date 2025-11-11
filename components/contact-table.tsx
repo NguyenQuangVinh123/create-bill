@@ -18,6 +18,7 @@ const ContactTable = async ({
         <tr className="text-xs md:text-lg">
           <th className="px-1 py-4 lg:px-6">#</th>
           <th className="px-1 py-4 lg:px-6">Name</th>
+          <th className="px-1 py-4 lg:px-6">Note</th>
           <th className="px-1 py-4 lg:px-6">Created</th>
         </tr>
       </thead>
@@ -33,6 +34,9 @@ const ContactTable = async ({
             </td>
             <td className="px-1 py-4 lg:px-6 font-semibold text-center">
               {contact.customer.name}
+            </td>
+            <td className="px-1 py-4 lg:px-6 font-semibold text-center">
+              {contact.note || "-"}
             </td>
             <td className="px-1 py-4 lg:px-6 text-gray-500 text-center">
               {formatDate(contact.dateCreated)}

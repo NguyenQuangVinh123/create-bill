@@ -19,7 +19,8 @@ export const saveContactIncome = async (prevSate: any, formData: FormData) => {
   try {
     await prisma.contactIncome.create({
       data: {
-        customerId: customerId
+        customerId: customerId,
+        note: formData.get("note") as string || "",
       },
     });
   } catch (error) {
