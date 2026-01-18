@@ -66,3 +66,37 @@ export const getCustomers = async (query: string) => {
     throw new Error("Failed to fetch contact data");
   }
 };
+
+export const getContactIncomesByDate = async () => {
+  try {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getUTCMonth();
+    const currentYear = currentDate.getUTCFullYear();
+    const currentDay = currentDate.getUTCDate(); // Get current day of the month
+
+    const dailyTotals = [];
+
+    for (let day = 1; day <= currentDay; day++) { // Loop only up to the current day
+      const startOfDay = new Date(Date.UTC(currentYear, currentMonth, day, 0, 0, 0));
+      const endOfDay = new Date(Date.UTC(currentYear, currentMonth, day, 23, 59, 59, 999));
+
+      const totalContactIncome = await prisma.contactIncome.count({
+        where: {
+          dateCreated: {
+            gte: startOfDay,
+            lt: endOfDay,
+          },
+        },
+      });
+
+      dailyTotals.push({
+        date: startOfDay,
+        totalContactIncome: totalContactIncome,
+      });
+    }
+
+    return dailyTotals;
+  } catch (error) {
+    throw new Error("Failed to fetch daily totals up to the current date");
+  }
+};

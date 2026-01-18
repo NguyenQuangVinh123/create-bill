@@ -1,5 +1,6 @@
-import { getContactIncomes } from "@/lib/data";
+import { getContactIncomes, getContactIncomesByDate } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
+import Collapse from "./collapse";
 
 const ContactTable = async ({
   query,
@@ -9,9 +10,11 @@ const ContactTable = async ({
   date: string;
 }) => {
   const contacts = await getContactIncomes(query, date);
+  const contactIncomes = await getContactIncomesByDate();
   return (
     <>
       <div className="">Total: {contacts.length}</div>
+      <Collapse contactIncomes={contactIncomes} />
     <table className="w-full m-auto border border-gray-300 shadow-lg rounded-lg overflow-hidden">
       {/* Table Header */}
       <thead className="bg-gradient-to-r bg-pink-400  text-white text-sm uppercase">
