@@ -1,7 +1,7 @@
 "use client";
 import React from 'react'
 import { useState } from 'react';
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatWeekdayVi } from "@/lib/utils";
 
 export default function Collapse({ contactIncomes }: { contactIncomes: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,7 +42,12 @@ export default function Collapse({ contactIncomes }: { contactIncomes: any }) {
                   key={index}
                   className="flex justify-between py-3 border-b last:border-none text-gray-700"
                 >
-                  <div className="flex-1 font-medium">{formatDate(i.date)}</div>
+                  <div className="flex-1 font-medium">
+                    {formatDate(i.date)}{" "}
+                    <span className="text-gray-500 font-normal">
+                      ({formatWeekdayVi(i.date)})
+                    </span>
+                  </div>
                   <div className="flex-1 text-right font-semibold text-blue-600">
                     {i.totalContactIncome} bills
                   </div>

@@ -1,22 +1,29 @@
 import { prisma } from "@/lib/prisma";
+import { getVietnamYMD, vietnamDayRange } from "@/lib/vn-date";
 
 
 export const getContactIncomes = async (query: string, date?: string) => {
   try {
-    let startOfDay, endOfDay;
+    let startOfDay: Date;
+    let endExclusive: Date;
     if (date) {
       const selectedDate = new Date(date);
-      startOfDay = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 0, 0, 0));
-      endOfDay = new Date(Date.UTC(selectedDate.getUTCFullYear(), selectedDate.getUTCMonth(), selectedDate.getUTCDate(), 23, 59, 59, 999));
+      const y = selectedDate.getUTCFullYear();
+      const m = selectedDate.getUTCMonth() + 1;
+      const d = selectedDate.getUTCDate();
+      const range = vietnamDayRange(y, m, d);
+      startOfDay = range.start;
+      endExclusive = range.endExclusive;
     } else {
-      const currentDate = new Date();
-      startOfDay = new Date(currentDate.setHours(0, 0, 0, 0));
-      endOfDay = new Date(currentDate.setHours(23, 59, 59, 999));
+      const { year, month, day } = getVietnamYMD(new Date());
+      const range = vietnamDayRange(year, month, day);
+      startOfDay = range.start;
+      endExclusive = range.endExclusive;
     }
     const dateFilter = {
       dateCreated: {
         gte: startOfDay,
-        lte: endOfDay,
+        lt: endExclusive,
       },
     };
     const contacts = await prisma.contactIncome.findMany({
@@ -69,28 +76,29 @@ export const getCustomers = async (query: string) => {
 
 export const getContactIncomesByDate = async () => {
   try {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getUTCMonth();
-    const currentYear = currentDate.getUTCFullYear();
-    const currentDay = currentDate.getUTCDate(); // Get current day of the month
+    const { year: currentYear, month: currentMonth, day: currentDay } =
+      getVietnamYMD(new Date());
 
     const dailyTotals = [];
 
-    for (let day = 1; day <= currentDay; day++) { // Loop only up to the current day
-      const startOfDay = new Date(Date.UTC(currentYear, currentMonth, day, 0, 0, 0));
-      const endOfDay = new Date(Date.UTC(currentYear, currentMonth, day, 23, 59, 59, 999));
+    for (let day = 1; day <= currentDay; day++) {
+      const { start, endExclusive } = vietnamDayRange(
+        currentYear,
+        currentMonth,
+        day
+      );
 
       const totalContactIncome = await prisma.contactIncome.count({
         where: {
           dateCreated: {
-            gte: startOfDay,
-            lt: endOfDay,
+            gte: start,
+            lt: endExclusive,
           },
         },
       });
 
       dailyTotals.push({
-        date: startOfDay,
+        date: start,
         totalContactIncome: totalContactIncome,
       });
     }

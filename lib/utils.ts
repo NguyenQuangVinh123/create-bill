@@ -23,3 +23,8 @@ export const formatDateNotHour = (dateStr: Date) => {
   // Format as DD/MM/YYYY hh:mm
   return `${day}/${month}/${year}`;
 };
+
+export const formatWeekdayVi = (dateStr: Date) => {
+  const date = new Date(dateStr.getTime() + dateStr.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
+  return date.toLocaleDateString("vi-VN", { weekday: "long" });
+};
