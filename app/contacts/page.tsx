@@ -4,6 +4,10 @@ import { TableSkeleton } from "@/components/skeleton";
 import ContactTable from "@/components/contact-table";
 import CreateForm from "@/components/create-form";
 import { getCustomers } from "@/lib/data";
+
+/** DB-backed page: skip static prerender at build time (avoids Prerender Error when DB is unavailable during `next build`). */
+export const dynamic = "force-dynamic";
+
 const Contacts = async ({
   searchParams,
 }: {
