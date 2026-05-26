@@ -9,8 +9,10 @@ const ContactTable = async ({
   query: string;
   date: string;
 }) => {
-  const contacts = await getContactIncomes(query, date);
-  const contactIncomes = await getContactIncomesByDate();
+  const [contacts, contactIncomes] = await Promise.all([
+    getContactIncomes(query, date),
+    getContactIncomesByDate(),
+  ]);
   return (
     <>
       <div className="">Total: {contacts.length}</div>

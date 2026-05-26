@@ -24,4 +24,6 @@ model ContactIncome {
   customer    Customer @relation(fields: [customerId], references: [id])
   dateCreated DateTime @default(now())
   note        String? @default("")
+
+  @@index([dateCreated])
 }

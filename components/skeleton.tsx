@@ -1,3 +1,13 @@
+export const FormSkeleton = () => {
+  return (
+    <div className="w-full flex flex-col gap-3 animate-pulse">
+      <div className="h-10 rounded-md bg-gray-100" />
+      <div className="h-12 rounded-md bg-gray-100" />
+      <div className="h-10 rounded-md bg-gray-100" />
+    </div>
+  );
+};
+
 export const TableSkeleton = () => {
   return (
     <table className="m-auto text-sm text-left text-gray-500 p-2">

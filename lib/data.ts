@@ -79,27 +79,39 @@ export const getContactIncomesByDate = async () => {
     const { year: currentYear, month: currentMonth, day: currentDay } =
       getVietnamYMD(new Date());
 
-    const dailyTotals = [];
+    const monthStart = vietnamDayRange(currentYear, currentMonth, 1).start;
+    const monthEnd = vietnamDayRange(
+      currentYear,
+      currentMonth,
+      currentDay
+    ).endExclusive;
 
-    for (let day = 1; day <= currentDay; day++) {
-      const { start, endExclusive } = vietnamDayRange(
-        currentYear,
-        currentMonth,
-        day
-      );
-
-      const totalContactIncome = await prisma.contactIncome.count({
-        where: {
-          dateCreated: {
-            gte: start,
-            lt: endExclusive,
-          },
+    const records = await prisma.contactIncome.findMany({
+      where: {
+        dateCreated: {
+          gte: monthStart,
+          lt: monthEnd,
         },
-      });
+      },
+      select: {
+        dateCreated: true,
+      },
+    });
 
+    const countByDay = new Map<number, number>();
+    for (const { dateCreated } of records) {
+      const { year, month, day } = getVietnamYMD(dateCreated);
+      if (year === currentYear && month === currentMonth) {
+        countByDay.set(day, (countByDay.get(day) ?? 0) + 1);
+      }
+    }
+
+    const dailyTotals = [];
+    for (let day = 1; day <= currentDay; day++) {
+      const { start } = vietnamDayRange(currentYear, currentMonth, day);
       dailyTotals.push({
         date: start,
-        totalContactIncome: totalContactIncome,
+        totalContactIncome: countByDay.get(day) ?? 0,
       });
     }
 
