@@ -1,5 +1,10 @@
+import dynamic from "next/dynamic";
 import { getCustomers } from "@/lib/data";
-import CreateForm from "@/components/create-form";
+import { FormSkeleton } from "@/components/skeleton";
+
+const CreateForm = dynamic(() => import("@/components/create-form"), {
+  loading: () => <FormSkeleton />,
+});
 
 export default async function CreateFormSection() {
   const customers = await getCustomers("");

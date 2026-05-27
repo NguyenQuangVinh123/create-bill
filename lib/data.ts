@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getVietnamYMD, vietnamDayRange } from "@/lib/vn-date";
+import { unstable_cache } from "next/cache";
 
 
 export const getContactIncomes = async (query: string, date?: string) => {
@@ -55,68 +56,91 @@ export const getContactIncomes = async (query: string, date?: string) => {
   }
 };
 
+async function fetchCustomers(query: string) {
+  return prisma.customer.findMany({
+    where: {
+      name: {
+        contains: query,
+        mode: "insensitive",
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
+}
+
 export const getCustomers = async (query: string) => {
   try {
-    const contacts = await prisma.customer.findMany({
-      where: {
-        name: {
-          contains: query,
-          mode: "insensitive"
-        },
-      },
-      orderBy: {
-        id: 'desc',
-      }
-    });
-    return contacts;
+    if (!query) {
+      return getCachedCustomers();
+    }
+    return fetchCustomers(query);
   } catch (error) {
     throw new Error("Failed to fetch contact data");
   }
 };
 
-export const getContactIncomesByDate = async () => {
-  try {
-    const { year: currentYear, month: currentMonth, day: currentDay } =
-      getVietnamYMD(new Date());
+const getCachedCustomers = unstable_cache(
+  () => fetchCustomers(""),
+  ["customers-list"],
+  { revalidate: 120, tags: ["contacts"] }
+);
 
-    const monthStart = vietnamDayRange(currentYear, currentMonth, 1).start;
-    const monthEnd = vietnamDayRange(
-      currentYear,
-      currentMonth,
-      currentDay
-    ).endExclusive;
+async function fetchContactIncomesByDate() {
+  const { year: currentYear, month: currentMonth, day: currentDay } =
+    getVietnamYMD(new Date());
 
-    const records = await prisma.contactIncome.findMany({
-      where: {
-        dateCreated: {
-          gte: monthStart,
-          lt: monthEnd,
-        },
-      },
-      select: {
-        dateCreated: true,
-      },
-    });
+  const monthStart = vietnamDayRange(currentYear, currentMonth, 1).start;
+  const monthEnd = vietnamDayRange(
+    currentYear,
+    currentMonth,
+    currentDay
+  ).endExclusive;
 
-    const countByDay = new Map<number, number>();
-    for (const { dateCreated } of records) {
-      const { year, month, day } = getVietnamYMD(dateCreated);
-      if (year === currentYear && month === currentMonth) {
-        countByDay.set(day, (countByDay.get(day) ?? 0) + 1);
-      }
-    }
+  const rows = await prisma.$queryRaw<
+    Array<{ day: Date; count: bigint }>
+  >`
+    SELECT
+      (ci."dateCreated" AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date AS day,
+      COUNT(*)::bigint AS count
+    FROM "ContactIncome" ci
+    WHERE ci."dateCreated" >= ${monthStart}
+      AND ci."dateCreated" < ${monthEnd}
+    GROUP BY 1
+    ORDER BY 1
+  `;
 
-    const dailyTotals = [];
-    for (let day = 1; day <= currentDay; day++) {
-      const { start } = vietnamDayRange(currentYear, currentMonth, day);
-      dailyTotals.push({
-        date: start,
-        totalContactIncome: countByDay.get(day) ?? 0,
-      });
-    }
-
-    return dailyTotals;
-  } catch (error) {
-    throw new Error("Failed to fetch daily totals up to the current date");
+  const countByDay = new Map<number, number>();
+  for (const row of rows) {
+    const { day } = getVietnamYMD(new Date(row.day));
+    countByDay.set(day, Number(row.count));
   }
-};
+
+  const dailyTotals = [];
+  for (let day = 1; day <= currentDay; day++) {
+    const { start } = vietnamDayRange(currentYear, currentMonth, day);
+    dailyTotals.push({
+      date: start,
+      totalContactIncome: countByDay.get(day) ?? 0,
+    });
+  }
+
+  return dailyTotals;
+}
+
+export const getContactIncomesByDate = unstable_cache(
+  async () => {
+    try {
+      return await fetchContactIncomesByDate();
+    } catch (error) {
+      throw new Error("Failed to fetch daily totals up to the current date");
+    }
+  },
+  ["contact-incomes-by-date"],
+  { revalidate: 60, tags: ["contacts"] }
+);

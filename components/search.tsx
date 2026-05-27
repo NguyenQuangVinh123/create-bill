@@ -1,8 +1,26 @@
 "use client";
 
-import { IoSearch } from "react-icons/io5";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
+
+function SearchIcon() {
+  return (
+    <svg
+      className="absolute left-3 top-2 h-5 w-5 text-gray-500"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 21l-4.35-4.35M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z"
+      />
+    </svg>
+  );
+}
 
 const Search = () => {
   const searchParams: any = useSearchParams();
@@ -33,7 +51,7 @@ const Search = () => {
           onChange={(e) => handleSearch(e.target.value)}
           defaultValue={searchParams.get("query")?.toString()}
         />
-        <IoSearch className="absolute left-3 top-2 h-5 w-5 text-gray-500" />
+        <SearchIcon />
       </div>
 
       <input

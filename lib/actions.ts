@@ -1,6 +1,6 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export const saveContactIncome = async (prevSate: any, formData: FormData) => {
@@ -27,5 +27,6 @@ export const saveContactIncome = async (prevSate: any, formData: FormData) => {
     return { message: "Failed to create contact" };
   }
   revalidatePath("/contacts");
+  revalidateTag("contacts");
   redirect("/contacts");
 };

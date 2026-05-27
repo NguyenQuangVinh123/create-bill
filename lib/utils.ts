@@ -1,5 +1,9 @@
-export const formatDate = (dateStr: Date) => {
-  const date = new Date(dateStr.getTime() + dateStr.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
+const toDate = (value: Date | string) =>
+  value instanceof Date ? value : new Date(value);
+
+export const formatDate = (dateStr: Date | string) => {
+  const d = toDate(dateStr);
+  const date = new Date(d.getTime() + d.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
   // Extract date components
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
@@ -13,8 +17,9 @@ export const formatDate = (dateStr: Date) => {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 
-export const formatDateNotHour = (dateStr: Date) => {
-  const date = new Date(dateStr.getTime() + dateStr.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
+export const formatDateNotHour = (dateStr: Date | string) => {
+  const d = toDate(dateStr);
+  const date = new Date(d.getTime() + d.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
   // Extract date components
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
@@ -24,7 +29,8 @@ export const formatDateNotHour = (dateStr: Date) => {
   return `${day}/${month}/${year}`;
 };
 
-export const formatWeekdayVi = (dateStr: Date) => {
-  const date = new Date(dateStr.getTime() + dateStr.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
+export const formatWeekdayVi = (dateStr: Date | string) => {
+  const d = toDate(dateStr);
+  const date = new Date(d.getTime() + d.getTimezoneOffset() * 60000 + (7 * 60 * 60000));
   return date.toLocaleDateString("vi-VN", { weekday: "long" });
 };
