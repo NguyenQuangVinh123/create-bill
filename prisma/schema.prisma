@@ -26,4 +26,5 @@ model ContactIncome {
   note        String? @default("")
 
   @@index([dateCreated])
+  @@index([customerId, dateCreated(sort: Desc)])
 }
