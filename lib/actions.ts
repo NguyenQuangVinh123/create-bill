@@ -30,3 +30,16 @@ export const saveContactIncome = async (prevSate: any, formData: FormData) => {
   revalidateTag("contacts");
   redirect("/contacts");
 };
+
+export const deleteContactIncome = async (id: number) => {
+  try {
+    await prisma.contactIncome.delete({
+      where: { id },
+    });
+  } catch (error) {
+    console.error("Failed to delete contact:", error);
+    throw new Error("Failed to delete contact");
+  }
+  revalidatePath("/contacts");
+  revalidateTag("contacts");
+};

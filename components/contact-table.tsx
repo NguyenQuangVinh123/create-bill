@@ -2,6 +2,7 @@ import { getContactIncomes } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { Suspense } from "react";
 import MonthlyStats from "@/components/monthly-stats";
+import { DeleteButton } from "@/components/buttons";
 
 const ContactTable = async ({
   query,
@@ -25,6 +26,7 @@ const ContactTable = async ({
           <th className="px-1 py-4 lg:px-6">Name</th>
           <th className="px-1 py-4 lg:px-6">Note</th>
           <th className="px-1 py-4 lg:px-6">Created</th>
+          <th className="px-1 py-4 lg:px-6"></th>
         </tr>
       </thead>
       {/* Table Body */}
@@ -45,6 +47,9 @@ const ContactTable = async ({
             </td>
             <td className="px-1 py-4 lg:px-6 text-gray-500 text-center">
               {formatDate(contact.dateCreated)}
+            </td>
+            <td className="px-1 py-4 lg:px-6 text-center">
+              <DeleteButton id={contact.id} />
             </td>
           </tr>
         ))}

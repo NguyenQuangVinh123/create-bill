@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { deleteContactIncome } from "@/lib/actions";
 import clsx from "clsx";
 
 export const SubmitButton = ({
@@ -22,5 +23,30 @@ export const SubmitButton = ({
     <button type="submit" className={className} disabled={disabled}>
       {label === "save" && <span>{pending ? "Saving..." : "Save"}</span>}
     </button>
+  );
+};
+
+export const DeleteButton = ({ id }: { id: number }) => {
+  const { pending } = useFormStatus();
+
+  return (
+    <form
+      action={async () => {
+        if (window.confirm("Bạn có chắc chắn muốn xóa không?")) {
+          await deleteContactIncome(id);
+        }
+      }}
+    >
+      <button
+        type="submit"
+        disabled={pending}
+        className={clsx(
+          "px-3 py-1 text-white bg-red-500 hover:bg-red-600 rounded-md text-xs transition-all duration-300",
+          { "opacity-50": pending }
+        )}
+      >
+        {pending ? "..." : "X"}
+      </button>
+    </form>
   );
 };
